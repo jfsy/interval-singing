@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Interval Training</title>
+        <meta name="description" content="A tool to train interval singing.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <meta property="og,title" content="Interval Training">
+        <meta property="og,type" content="website">
+        <meta property="og,url" content="">
+        <meta property="og,image" content="">
+
+        <link rel="manifest" href="site.webmanifest">
+        <link rel="apple-touch-icon" href="icon.png">
+
+        <!-- <script src="https://unpkg.com/vexflow/releases/vexflow-min.js"></script> -->
+        <!-- <link rel="stylesheet" href="style.css"> -->
+        <style>
+
+        </style>
+
+        <!-- <meta name="theme-color" content="#fafafa"> -->
+    </head>
+    <body>
+        <div>
+            <p id="interval-text">Click start to begin.</p>
+            <p id="solution" style="display:none"></p>
+        </div>
+        <div>
+            <button id="btn-update" onclick="newProblem()">Start</button>
+            <button id="btn-show-solution" onclick="showSolution()" style="display:none">Show Solution</button>
+        </div>
+        <script>
+            var tones = [
+                "C",
+                "C#/Db",
+                "D",
+                "D#/Eb",
+                "E",
+                "F",
+                "F#/Gb",
+                "G",
+                "G#/Ab",
+                "A",
+                "A#/Bb",
+                "B",
+            ]
+            var directionToSign = {
+                "ascending": 1,
+                "descending": -1,
+            }
+            var intervalToHalfSteps = {
+                "minor 2nd": 1,
+                "major 2nd": 2,
+                "minor 3rd": 3,
+                "major 3rd": 4,
+                "perfect 4th": 5,
+                "tritone": 6,
+                "perfect 5th": 7,
+                "minor 6th": 8,
+                "major 6th": 9,
+                "minor 7th": 10,
+                "major 7th": 11,
+                "octave": 12,
+            }
+            function newProblem() {
+                var problemComp = getProblemComponents();
+                var problemText = problemComponentsToText(problemComp);
+                var solution = solveProblem(problemComp);
+                document.getElementById("interval-text").innerHTML = problemText;
+                document.getElementById("solution").innerHTML = solution;
+                document.getElementById("btn-update").innerHTML = "Next";
+                document.getElementById("btn-show-solution").style.display = "block";
+                document.getElementById("solution").style.display = "none";
+                document.getElementById("solution").innerHTML = solution;
+
+            }
+            function showSolution() {
+                document.getElementById("solution").style.display = "block";
+            }
+            function getRandomInt(max) {
+                return Math.floor(Math.random() * max);
+            }
+            function getRandomKey(obj) {
+                var keys = Object.keys(obj);
+                return keys[getRandomInt(keys.length)];
+            }
+            function getRandomEntry(obj) {
+                var entries = Object.entries(obj);
+                return entries[getRandomInt(entries.length)];
+            }
+            function getProblemComponents() {
+                var toneStartIdx = getRandomInt(tones.length);
+                var direction = getRandomKey(directionToSign);
+                var interval = getRandomKey(intervalToHalfSteps);
+                return [toneStartIdx, direction, interval]
+            }
+            function problemComponentsToText(problemComponents) {
+                var [toneStartIdx, direction, interval] = problemComponents;
+                console.log(toneStartIdx);
+                return `${tones[toneStartIdx]} ${direction} ${interval}`;
+            }
+            function solveProblem(problemComponents) {
+                var [toneStartIdx, direction, interval] = problemComponents;
+                var toneEndIdx = (toneStartIdx + directionToSign[direction] * intervalToHalfSteps[interval]) % tones.length;
+                if (toneEndIdx < 0) {
+                    toneEndIdx += 12;
+                }
+                return tones[toneEndIdx]
+
+            }
+        </script>
+    </body>
+</html>
