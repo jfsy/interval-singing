@@ -14,43 +14,39 @@
         <link rel="manifest" href="site.webmanifest">
         <link rel="apple-touch-icon" href="icon.png">
 
-        <!-- <script src="https://unpkg.com/vexflow/releases/vexflow-min.js"></script> -->
-        <!-- <link rel="stylesheet" href="style.css"> -->
-        <style>
-
-        </style>
-
-        <!-- <meta name="theme-color" content="#fafafa"> -->
+        <script src="./js/Tone.js"></script>
     </head>
     <body>
         <div>
-            <p id="interval-text">Click start to begin.</p>
+            <p id="problem">Click start to begin.</p>
             <p id="solution" style="display:none"></p>
         </div>
         <div>
-            <button id="btn-update" onclick="newProblem()">Start</button>
+            <button id="btn-update" onclick="showNewProblem()">Start</button>
             <button id="btn-show-solution" onclick="showSolution()" style="display:none">Show Solution</button>
         </div>
-        <script>
-            var tones = [
+
+        <script>            
+            const notes = [
                 "C",
-                "C#/Db",
+                "C#",
                 "D",
-                "D#/Eb",
+                "D#",
                 "E",
                 "F",
-                "F#/Gb",
+                "F#",
                 "G",
-                "G#/Ab",
+                "G#",
                 "A",
-                "A#/Bb",
+                "A#",
                 "B",
             ]
-            var directionToSign = {
+            const octaves = [3, 4, 5]
+            const directionToSign = {
                 "ascending": 1,
                 "descending": -1,
             }
-            var intervalToHalfSteps = {
+            const intervalToHalfSteps = {
                 "minor 2nd": 1,
                 "major 2nd": 2,
                 "minor 3rd": 3,
@@ -64,52 +60,87 @@
                 "major 7th": 11,
                 "octave": 12,
             }
-            function newProblem() {
-                var problemComp = getProblemComponents();
-                var problemText = problemComponentsToText(problemComp);
-                var solution = solveProblem(problemComp);
-                document.getElementById("interval-text").innerHTML = problemText;
-                document.getElementById("solution").innerHTML = solution;
-                document.getElementById("btn-update").innerHTML = "Next";
-                document.getElementById("btn-show-solution").style.display = "block";
-                document.getElementById("solution").style.display = "none";
-                document.getElementById("solution").innerHTML = solution;
 
+            let currentProblem = null;
+            let currentSolution = null;
+            const synth = new Tone.Synth().toDestination();
+            
+            function playPitch(pitch) {
+                synth.triggerAttackRelease(pitch, "4n");
             }
-            function showSolution() {
-                document.getElementById("solution").style.display = "block";
+
+            function playInterval(pitch1, pitch2) {
+                const now = Tone.now();
+                synth.triggerAttackRelease(pitch1, "4n", now);
+                synth.triggerAttackRelease(pitch2, "4n", now + 1);
             }
+
             function getRandomInt(max) {
                 return Math.floor(Math.random() * max);
             }
+
             function getRandomKey(obj) {
-                var keys = Object.keys(obj);
+                const keys = Object.keys(obj);
                 return keys[getRandomInt(keys.length)];
             }
-            function getRandomEntry(obj) {
-                var entries = Object.entries(obj);
-                return entries[getRandomInt(entries.length)];
-            }
-            function getProblemComponents() {
-                var toneStartIdx = getRandomInt(tones.length);
-                var direction = getRandomKey(directionToSign);
-                var interval = getRandomKey(intervalToHalfSteps);
-                return [toneStartIdx, direction, interval]
-            }
-            function problemComponentsToText(problemComponents) {
-                var [toneStartIdx, direction, interval] = problemComponents;
-                console.log(toneStartIdx);
-                return `${tones[toneStartIdx]} ${direction} ${interval}`;
-            }
-            function solveProblem(problemComponents) {
-                var [toneStartIdx, direction, interval] = problemComponents;
-                var toneEndIdx = (toneStartIdx + directionToSign[direction] * intervalToHalfSteps[interval]) % tones.length;
-                if (toneEndIdx < 0) {
-                    toneEndIdx += 12;
-                }
-                return tones[toneEndIdx]
 
+            function updateProblem() {
+                const noteIdx = getRandomInt(notes.length);
+                const octave = 4;
+                const direction = getRandomKey(directionToSign);
+                const interval = getRandomKey(intervalToHalfSteps);
+                currentProblem = [noteIdx, octave, direction, interval];
+                return currentProblem;
             }
+            
+            function getProblemPitch() {
+                const [noteIdx, octave, direction, interval] = currentProblem;
+                const pitch = `${notes[noteIdx]}${octave}`;
+                return pitch;
+            }
+
+            function getProblemText() {
+                const [noteIdx, octave, direction, interval] = currentProblem;
+                return `${notes[noteIdx]} ${direction} ${interval}`;
+            }
+            
+            function solveProblem(problemComponents) {
+                let [noteStartIdx, octave, direction, interval] = currentProblem;
+                let noteEndIdx = noteStartIdx + directionToSign[direction] * intervalToHalfSteps[interval];
+                if (noteEndIdx < 0) {
+                    noteEndIdx %= 12;
+                    octave -= 1;
+                } else if (noteEndIdx > 11) {
+                    noteEndIdx %= 12;
+                    octave += 1;
+                }
+                currentSolution = [noteEndIdx, octave];
+                return currentSolution;
+            }
+
+            function getSolutionPitch() {
+                const [noteIdx, octave] = currentSolution;
+                return `${notes[noteIdx]}${octave}`;
+            }
+            function getSolutionText() {
+                const [noteIdx, octave] = currentSolution;
+                return `${notes[noteIdx]}`;
+            }
+
+            function showNewProblem() {
+                updateProblem();
+                document.getElementById("problem").innerHTML = getProblemText();
+                document.getElementById("btn-update").innerHTML = "Next";
+                document.getElementById("btn-show-solution").style.display = "block";
+                playPitch(getProblemPitch());
+            }
+
+            function showSolution() {
+                solveProblem();
+                document.getElementById("solution").innerHTML = getSolutionText();
+                playInterval(getProblemPitch(), getSolutionPitch());
+            }
+
         </script>
     </body>
 </html>
