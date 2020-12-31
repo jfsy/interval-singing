@@ -79,7 +79,7 @@ function solveProblem(problemComponents) {
     let [noteStartIdx, octave, direction, interval] = currentProblem;
     let noteEndIdx = noteStartIdx + directionToSign[direction] * intervalToHalfSteps[interval];
     if (noteEndIdx < 0) {
-        noteEndIdx %= 12;
+        noteEndIdx += 12;
         octave -= 1;
     } else if (noteEndIdx > 11) {
         noteEndIdx %= 12;
