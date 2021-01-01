@@ -13,15 +13,32 @@
 
         <link rel="manifest" href="site.webmanifest">
         <link rel="apple-touch-icon" href="icon.png">
+
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            p {
+                text-align: center;
+            }
+            button {
+                display: block;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 400px;
+                height: 60px;
+            }
+        </style>
+        
     </head>
     <body>
-        <div>
+        <div id="app">
             <p id="problem">Click start to begin.</p>
             <p id="solution" style="display:none"></p>
-        </div>
-        <div>
-            <button id="btn-update">Start</button>
+            <button id="btn-repeat-problem" style="display:none">Repeat Problem</button>
             <button id="btn-show-solution" style="display:none">Show Solution</button>
+            <button id="btn-next-problem">Start</button>
+
         </div>
         <script src="./js/Tone.js"></script>
         <script src="./js/App.js"></script>

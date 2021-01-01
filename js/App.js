@@ -34,13 +34,14 @@ const intervalToHalfSteps = {
 
 let currentProblem = null;
 let currentSolution = null;
-const synth = new Tone.Synth().toDestination();
 
 function playPitch(pitch) {
+    const synth = new Tone.Synth().toDestination();
     synth.triggerAttackRelease(pitch, "4n");
 }
 
 function playInterval(pitch1, pitch2) {
+    const synth = new Tone.Synth().toDestination();
     const now = Tone.now();
     synth.triggerAttackRelease(pitch1, "4n", now);
     synth.triggerAttackRelease(pitch2, "4n", now + 1);
@@ -70,6 +71,10 @@ function getProblemPitch() {
     return pitch;
 }
 
+function playProblemPitch() {
+    playPitch(getProblemPitch());
+}
+
 function getProblemText() {
     const [noteIdx, octave, direction, interval] = currentProblem;
     return `${notes[noteIdx]} ${direction} ${interval}`;
@@ -93,6 +98,11 @@ function getSolutionPitch() {
     const [noteIdx, octave] = currentSolution;
     return `${notes[noteIdx]}${octave}`;
 }
+
+function playSolutionPitch() {
+    playInterval(getProblemPitch(), getSolutionPitch());
+}
+
 function getSolutionText() {
     const [noteIdx, octave] = currentSolution;
     return `${notes[noteIdx]}`;
@@ -101,16 +111,20 @@ function getSolutionText() {
 function showNewProblem() {
     updateProblem();
     document.getElementById("problem").innerHTML = getProblemText();
-    document.getElementById("btn-update").innerHTML = "Next";
+    document.getElementById("btn-next-problem").innerHTML = "Next";
+    document.getElementById("btn-show-solution").innerHTML = "Show Solution";
     document.getElementById("btn-show-solution").style.display = "block";
-    playPitch(getProblemPitch());
+    document.getElementById("btn-repeat-problem").style.display = "block";
+    playProblemPitch();
 }
 
 function showSolution() {
     solveProblem();
     document.getElementById("solution").innerHTML = getSolutionText();
-    playInterval(getProblemPitch(), getSolutionPitch());
+    document.getElementById("btn-show-solution").innerHTML = "Repeat Solution";
+    playSolutionPitch();
 }
 
-document.getElementById("btn-update").addEventListener("click", showNewProblem);
+document.getElementById("btn-next-problem").addEventListener("click", showNewProblem);
+document.getElementById("btn-repeat-problem").addEventListener("click", playProblemPitch)
 document.getElementById("btn-show-solution").addEventListener("click", showSolution);
