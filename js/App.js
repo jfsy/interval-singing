@@ -115,6 +115,7 @@ function showNewProblem() {
     document.getElementById("btn-show-solution").innerHTML = "Show Solution";
     document.getElementById("btn-show-solution").style.display = "block";
     document.getElementById("btn-repeat-problem").style.display = "block";
+    writeNotes(getProblemPitch());
     playProblemPitch();
 }
 
@@ -122,7 +123,32 @@ function showSolution() {
     solveProblem();
     document.getElementById("solution").innerHTML = getSolutionText();
     document.getElementById("btn-show-solution").innerHTML = "Repeat Solution";
+    writeNotes(getProblemPitch(), getSolutionPitch());
     playSolutionPitch();
+}
+
+function writeNotes(pitch1, pitch2 = null) {
+    
+    document.getElementById('notation').innerHTML = null;
+    const vf = new Vex.Flow.Factory({renderer: {elementId: 'notation', width: 200}});
+    const score = vf.EasyScore();
+    const system = vf.System({width: 250});
+
+    score.builder.reset();
+    pitches = `${pitch1}/q`
+    if (pitch2 != null) {
+        pitches += `, ${pitch2}`;
+        score.set({time: "1/2"});
+    } else {
+        score.set({time: "1/4"})
+    }
+
+    const voice = score.voice(score.notes(pitches));
+    system.addStave({
+        voices: [voice]
+    }).addClef("treble");
+
+    vf.draw();
 }
 
 document.getElementById("btn-next-problem").addEventListener("click", showNewProblem);
