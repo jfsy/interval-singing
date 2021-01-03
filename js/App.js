@@ -122,7 +122,7 @@ function showNewProblem() {
 function showSolution() {
     solveProblem();
     document.getElementById("solution").innerHTML = getSolutionText();
-    document.getElementById("btn-show-solution").innerHTML = "Repeat Solution";
+    document.getElementById("btn-show-solution").innerHTML = "Replay Solution";
     writeNotes(getProblemPitch(), getSolutionPitch());
     playSolutionPitch();
 }
